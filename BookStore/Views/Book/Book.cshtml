@@ -1,0 +1,157 @@
+﻿@model VMbook
+@{
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+@section Head{
+    <link href="~/css/site.css" rel="stylesheet" />
+    <script src="~/js/site.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+        $(".edit").click(function () {
+            var Cid = $(this).parent().parent().find(".Cid").text();
+            $.ajax({
+                type: 'get',
+                url: '/BookStore/Book/Aedit?id=' + Cid,
+                success: function (data) {
+                    $("#ID").val(data.id);
+                    $("#Imagepath").val(data.imagepath);
+                    $("#txtFName").val(data.firstname);
+                    $("#liCategory").val(data.gategory_id);
+                    $("#liAuthors").val(data.auther_id);
+                    $("#txtyear").val(data.year);
+                    $("#txtprice").val(data.price);
+                    $("#txtstock").val(data.stock);
+                },
+                error: function () {
+                    alert("---")
+                }
+            });
+            $("#save").hide();
+            $("#update").show();
+            $("#myModal").modal('show');
+        });
+        $("#newbook").click(function () {
+            $("#ID").val("");
+            $("#Imagepath").val("");
+            $("#txtFName").val("");
+            $("#liCategory").val("");
+            $("#liAuthors").val("");
+            $("#txtyear").val("");
+            $("#txtprice").val("");
+            $("#txtstock").val("");
+
+            $("#save").show();
+            $("#update").hide();
+            $("#myModal").modal('show');
+        });
+    });
+    </script>
+}
+
+@section Body{
+    <form method="post" enctype="multipart/form-data">
+        <div class="container">
+            <h2> </h2>
+            <!-- Trigger the modal with a button -->
+            <button type="button" class="btn btn-info btn-lg"  data-target="#myModal">New Book</button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="myModal" role="dialog">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">New Book</h4>
+                        </div>
+                        <div class="modal-body">
+
+                            <div class="mb-3">
+                                <label class="col-form-label" style="float:left">Book Title</label>
+                                <input type="text" class="form-control" id="txtFName" asp-for="book.BookTitel">
+                            </div>
+                            <div class="mb-3">
+                                <label class="col-form-label" style="float:left">year</label>
+                                <input type="text" class="form-control" id="txtyear" asp-for="book.Year">
+                            </div>
+                            <div class="mb-3">
+                                <label class="col-form-label" style="float:left">Price</label>
+                                <input type="text" class="form-control" id="txtprice" asp-for="book.Price">
+                            </div>
+                            <div class="mb-3">
+                                <label class="col-form-label" style="float:left">Auther:</label>
+                                <select class="form-select" id="liAuthors" asp-items='new SelectList(Model.authers,"id","FirstName")' asp-for="book.Auther_id">
+                                    <option>Select Auther</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="col-form-label" style="float:left">Category:</label>
+                                <select class="form-select" id="liCategory" asp-items='new SelectList(Model.gategories,"id","Name")' asp-for="book.Gategory_id">
+                                    <option>Select Category</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="col-form-label" style="float:left"> Stock</label>
+                                <input type="text" class="form-control" id="txtstock" asp-for="book.Stock">
+                            </div>
+                            <div class="mb-3">
+                                <label class="col-form-label" style="float:left"></label>
+
+                                <input type="file"  style="display:none" asp-for="book.image" />
+                                <label class="btn btn-primary" style="width:100% !important" for="fu1">Upload Photo</label>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" id="save" class="btn btn-primary" asp-action="Save">Save</button>
+                            <button type="submit" id="update" class="btn btn-primary" asp-action="update">Update</button>
+                            <input type="hidden" id="ID" asp-for="book.id" />
+                            <input type="hidden" id="Imagepath" asp-for="book.imagePath" />
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        <div class="row" style="margin-top:10px">
+            <table class="table-bordered table table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Book Titel</th>
+                        <th>Cover</th>
+                        <th>year</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th>Auther</th>
+                        <th>Stock</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (Book item in Model.books)
+                    {
+                        <tr>
+                            <td class="Cid">@item.id</td>
+                            <td>@item.BookTitel</td>
+                            <td><img src='@item.imagePath' style="width:80px ;height:80px" /></td>
+                            <td>@item.Year</td>
+                            <td>@item.Price</td>
+                            <td>@item.gategory.Name</td>
+                            <td>@item.auther.FirstName</td>
+                            <td>@item.Stock</td>
+                            <td>
+                                <a class="edit" >Edit |</a>
+                                <a asp-action="Delete" asp-route-id="@item.id">Delete |</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </form>
+}
